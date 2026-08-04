@@ -1,0 +1,20 @@
+{
+  "id": "54aad5f3-6bc8-4cdc-a43c-1bf9cea6a3ec",
+  "bagId": "e79167ae-9b63-4ecb-9824-32787f9555cf",
+  "mobile": "9999999999",
+  "artworkUrl": "",
+  "previewUrl": "/designs/preview_54aad5f3-6bc8-4cdc-a43c-1bf9cea6a3ec.png",
+  "position": {
+    "x": 0,
+    "y": 0
+  },
+  "size": {
+    "width": 0,
+    "height": 0
+  },
+  "rotation": 0,
+  "layers": "[{\"id\":\"text_1782026641426_989\",\"type\":\"text\",\"text\":\"Testing Design\",\"x\":260,\"y\":275.6,\"width\":140,\"height\":35,\"rotation\":0,\"fill\":\"#000000\",\"fontFamily\":\"Montserrat\",\"fontSize\":22,\"align\":\"center\",\"fontWeight\":\"bold\",\"fontStyle\":\"\"}]",
+  "bagColor": "red",
+  "timestamp": "2026-06-21T07:25:04.931Z",
+  "createdAt": "2026-06-21T07:25:04.931Z"
+}

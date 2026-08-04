@@ -1,0 +1,21 @@
+{
+  "id": "bf03839b-7fef-46b7-9873-51d1c1f0e5c8",
+  "bagId": "7c5332e4-4181-4da3-abc6-f1ffded70fc4",
+  "name": "sdfsd",
+  "mobile": "1155544845",
+  "artworkUrl": "http://localhost:5000/uploads/artwork_1f60ade5-0c3a-4694-9d0a-3740151da992.jpg",
+  "previewUrl": "/designs/preview_bf03839b-7fef-46b7-9873-51d1c1f0e5c8.png",
+  "position": {
+    "x": 0,
+    "y": 0
+  },
+  "size": {
+    "width": 0,
+    "height": 0
+  },
+  "rotation": 0,
+  "layers": "[{\"id\":\"img_1785777916188_291\",\"type\":\"image\",\"src\":\"http://localhost:5000/uploads/artwork_1f60ade5-0c3a-4694-9d0a-3740151da992.jpg\",\"x\":294.53961181640625,\"y\":325.3777709960938,\"width\":169,\"height\":169,\"rotation\":0,\"opacity\":1,\"filter\":\"none\"}]",
+  "bagColor": "natural",
+  "timestamp": "2026-08-03T17:25:29.309Z",
+  "createdAt": "2026-08-03T17:25:29.309Z"
+}

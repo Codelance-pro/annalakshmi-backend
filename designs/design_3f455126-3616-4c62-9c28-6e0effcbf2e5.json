@@ -1,0 +1,21 @@
+{
+  "id": "3f455126-3616-4c62-9c28-6e0effcbf2e5",
+  "bagId": "7c5332e4-4181-4da3-abc6-f1ffded70fc4",
+  "name": "surya",
+  "mobile": "6374286960",
+  "artworkUrl": "http://localhost:5000/uploads/artwork_f245725c-123d-421a-a765-724799cbedaf.png",
+  "previewUrl": "/designs/preview_3f455126-3616-4c62-9c28-6e0effcbf2e5.png",
+  "position": {
+    "x": 0,
+    "y": 0
+  },
+  "size": {
+    "width": 0,
+    "height": 0
+  },
+  "rotation": 0,
+  "layers": "[{\"id\":\"img_1785778024907_314\",\"type\":\"image\",\"src\":\"http://localhost:5000/uploads/artwork_f245725c-123d-421a-a765-724799cbedaf.png\",\"x\":300.63494873046875,\"y\":320.29839477539065,\"width\":169,\"height\":169,\"rotation\":0,\"opacity\":1,\"filter\":\"none\"}]",
+  "bagColor": "natural",
+  "timestamp": "2026-08-03T17:33:46.553Z",
+  "createdAt": "2026-08-03T17:33:46.553Z"
+}

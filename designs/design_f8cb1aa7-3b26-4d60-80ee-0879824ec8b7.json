@@ -1,0 +1,21 @@
+{
+  "id": "f8cb1aa7-3b26-4d60-80ee-0879824ec8b7",
+  "bagId": "f60f4ac0-4996-4214-99fc-bc6b0e4677aa",
+  "name": "mani",
+  "mobile": "6374286960",
+  "artworkUrl": "http://localhost:5000/uploads/artwork_0c6b27b7-e494-4242-9007-ec0946fd548d.png",
+  "previewUrl": "/designs/preview_f8cb1aa7-3b26-4d60-80ee-0879824ec8b7.png",
+  "position": {
+    "x": 0,
+    "y": 0
+  },
+  "size": {
+    "width": 0,
+    "height": 0
+  },
+  "rotation": 0,
+  "layers": "[{\"id\":\"img_1785775511869_792\",\"type\":\"image\",\"src\":\"http://localhost:5000/uploads/artwork_0c6b27b7-e494-4242-9007-ec0946fd548d.png\",\"x\":261.0010729564327,\"y\":326.60107295643195,\"width\":233.00214591286516,\"height\":233.00214591286516,\"rotation\":0,\"opacity\":1,\"filter\":\"none\"}]",
+  "bagColor": "natural",
+  "timestamp": "2026-08-03T16:45:35.887Z",
+  "createdAt": "2026-08-03T16:45:35.887Z"
+}

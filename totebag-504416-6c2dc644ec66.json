@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "totebag-504416",
+  "private_key_id": "6c2dc644ec66baf0a48e368cb5bef98214b81092",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDEkWB0MNzMeMBN\nYrPr+lAzEVdW0lgurfYi366DS9djBeNLIQ3y3C9GqoBZ6FcY/FRARQQSThm12NGT\ndX1WaHEYrEbx+ywoL7I8muXJqifc7WOv9CkdJELmIdF8pP6H293gyh4LMzRpD0nO\nn1gUBd5gE2Ee/ioQkuENasoh71FjeeO3VyPw1QVTNRggZ0HmuFmA8/c1vZ4a8FfL\n2/bNu4MJzgR0e6ENC0sOq/7WTW70VkGK77ovl5n/n7tqVSm2v423PEnEaKz0co5F\nZPEhioMd3IZf22rHOW8sO4mUkPywhH1h8dN2sc+St+20NYciHo/SX9QHWxai5bVT\nv/8Pc4ajAgMBAAECggEABWFpvGFDOF3/yYtJNU1JphqatoSVQSXZRggaABVyqyiH\nAB0pNnu11/kLAJFrCbYlqjxMlogVWeE6KPXY1r71UlsSdniZ5oaAgJP7p6L+nb4D\nvtYi//cbohTMsqnWuJCzCJgPukSOPs5aOb7D2IlDY1B0fDaYOSu3RevYssgY64bN\nnChpbpYTVb0gQZYeGFSs2zabLAxvERA3sYVuWf3WPOnn6QcVIazGd9SwrvU2I8A7\najb9svzuwb1hthQw+PZ2dIP99zcgvhlRYtC1XmxtMnzl+tMW4vrfa+o51KUryK/Q\nFZ+7jq5vK1k2MyqUhR+t7gGmB8l0dqXlWYqOuQXkDQKBgQDrRtSG38eIyYqShonk\nOZmxIf27gdPkGIvvor+fOOB+Wbv2u6mSEfD9z1Xrif52MH7dpBXk3dzFg6zCX7bH\nKckH/yjc9W1Obl+dIr7Wsx+Xi2+FNLLPpk27aoqPPr0HuddYjRX/nM/0J2AoBZti\nOl5CnqsNr6WAznpYQUJadQ5HLwKBgQDV4bczvFdns17NiYr8B69kTUk0WHsDY5sO\nG5B+iXR63pnDcFO2bHegDwlIiObwhaAq/41tND4DWksoYfRNAjR/Nvo50ZR/pFVR\nCw9zcle80cmurmyA+ZjGjX89BpyY3gRpn+053pe+I3byTy12GrYlxj1WyM5HzDvf\nEmscUmJazQKBgGu5f5/NoHfCB9+1GDfWI8fVz25mMFWU46WyN9i4WxmfDpAXNrn5\n2wTrROTWxxroc34aHigvaWFKO/S3jGG+gRxXOSeKfCTYJpE1EnoNg96IamRsT58B\n/z9btduGl1iNP8t8teDWtOSOjtlkT9P286e/LITUsou6fowgPThbtlDjAoGANFf8\nRQ4X+goc7oJ14D5lP0/m1Ye9+1NaNDaswzsSpatqyDjqU9/x2tszM2xF0KFzVHKc\ngxhhAOMNN8HZTyt1+5hR3uqaxC5Mrvvc+S0Hqe9Rw41ugpYTPKyOcjn3AzZ6r/ry\nzNHcIy18w8p63sekwlPk2SNl0I58LJjOW+0RoxUCgYEAsEq83pk0Q1H9cYQd3/KM\nXmnVSSi2RfoaAnQBrqWXsOeqQ6tTuyeyAKrtR17x7oBU8FcBMaD1gTaJKyhtb/VH\nnYKmWYqBqvwHjwPPHlQQFDobG0sQeg75qdgRGGPbVQV00l0PgwoCaIDXl2Ixgl34\n0RNiIJBGqsP2TEMK1FoT+dw=\n-----END PRIVATE KEY-----\n",
+  "client_email": "tote-bag@totebag-504416.iam.gserviceaccount.com",
+  "client_id": "108783182900022402095",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/tote-bag%40totebag-504416.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

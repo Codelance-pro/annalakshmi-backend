@@ -1,0 +1,20 @@
+{
+  "id": "d4ca63aa-4cf0-4fd3-85e1-339f1eb00e07",
+  "bagId": "e79167ae-9b63-4ecb-9824-32787f9555cf",
+  "mobile": "9999999999",
+  "artworkUrl": "",
+  "previewUrl": "/designs/preview_d4ca63aa-4cf0-4fd3-85e1-339f1eb00e07.png",
+  "position": {
+    "x": 0,
+    "y": 0
+  },
+  "size": {
+    "width": 0,
+    "height": 0
+  },
+  "rotation": 0,
+  "layers": "[{\"id\":\"text_1782235318707_876\",\"type\":\"text\",\"text\":\"Awesome Custom Studio\",\"x\":509,\"y\":275.6,\"width\":396,\"height\":35,\"rotation\":0,\"fill\":\"#000000\",\"fontFamily\":\"Montserrat\",\"fontSize\":22,\"align\":\"center\",\"fontWeight\":\"bold\",\"fontStyle\":\"\"}]",
+  "bagColor": "natural",
+  "timestamp": "2026-06-23T17:23:33.835Z",
+  "createdAt": "2026-06-23T17:23:33.835Z"
+}

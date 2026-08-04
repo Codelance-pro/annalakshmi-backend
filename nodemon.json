@@ -1,0 +1,9 @@
+{
+  "ignore": [
+    "designs/*",
+    "designs.csv",
+    "products.json",
+    "inquiries.json",
+    "uploads/*"
+  ]
+}

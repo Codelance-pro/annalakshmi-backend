@@ -1,0 +1,21 @@
+{
+  "id": "e860261c-6c60-4088-bbd1-c0b6f9da2af6",
+  "bagId": "f60f4ac0-4996-4214-99fc-bc6b0e4677aa",
+  "name": "arun",
+  "mobile": "6354715824",
+  "artworkUrl": "http://localhost:5000/uploads/artwork_457da1f3-ca53-4982-a7ab-94873fe5beef.png",
+  "previewUrl": "/designs/preview_e860261c-6c60-4088-bbd1-c0b6f9da2af6.png",
+  "position": {
+    "x": 0,
+    "y": 0
+  },
+  "size": {
+    "width": 0,
+    "height": 0
+  },
+  "rotation": 0,
+  "layers": "[{\"id\":\"img_1785777114208_87\",\"type\":\"image\",\"src\":\"http://localhost:5000/uploads/artwork_457da1f3-ca53-4982-a7ab-94873fe5beef.png\",\"x\":272.19061279296875,\"y\":336.5523315429688,\"width\":169,\"height\":169,\"rotation\":0,\"opacity\":1,\"filter\":\"none\"}]",
+  "bagColor": "natural",
+  "timestamp": "2026-08-03T17:12:20.272Z",
+  "createdAt": "2026-08-03T17:12:20.272Z"
+}
