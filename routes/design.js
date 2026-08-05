@@ -6,6 +6,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { verifyToken } = require('../middleware/auth');
 const { appendDesignSubmission } = require('../services/sheets');
+const { uploadBuffer, uploadBase64 } = require('../services/cloudinary');
 
 // Ensure directories exist
 const uploadsDir = path.join(__dirname, '..', 'uploads');
@@ -14,14 +15,8 @@ const designsDir = path.join(__dirname, '..', 'designs');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
-// Multer for artwork uploads
-const artworkStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `artwork_${uuidv4()}${ext}`);
-  },
-});
+// Multer memory storage for artwork uploads to Cloudinary
+const artworkStorage = multer.memoryStorage();
 
 const artworkUpload = multer({
   storage: artworkStorage,
@@ -39,7 +34,7 @@ const artworkUpload = multer({
 
 // POST /api/upload  (Public)
 router.post('/upload', (req, res) => {
-  artworkUpload.single('artwork')(req, res, (err) => {
+  artworkUpload.single('artwork')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({ error: 'File is too large. Maximum size is 5 MB.' });
@@ -53,8 +48,13 @@ router.post('/upload', (req, res) => {
       return res.status(400).json({ error: 'No file uploaded.' });
     }
 
-    const url = `/uploads/${req.file.filename}`;
-    res.json({ success: true, url, filename: req.file.filename });
+    try {
+      const cloudinaryUrl = await uploadBuffer(req.file.buffer, 'annalakshmi/artworks');
+      res.json({ success: true, url: cloudinaryUrl, filename: req.file.originalname });
+    } catch (uploadErr) {
+      console.error('Cloudinary artwork upload error:', uploadErr);
+      res.status(500).json({ error: 'Failed to upload artwork to cloud storage.' });
+    }
   });
 });
 
@@ -111,12 +111,14 @@ router.post('/save-design', async (req, res) => {
     const designId = uuidv4();
     const timestamp = new Date().toISOString();
 
-    // Save preview image (base64 PNG → file)
-    let previewPath = null;
-    if (previewImage && previewImage.startsWith('data:image/png;base64,')) {
-      const base64Data = previewImage.replace(/^data:image\/png;base64,/, '');
-      previewPath = path.join(designsDir, `preview_${designId}.png`);
-      fs.writeFileSync(previewPath, base64Data, 'base64');
+    // Upload preview image (base64 PNG) to Cloudinary
+    let previewUrl = null;
+    if (previewImage && previewImage.startsWith('data:image/')) {
+      try {
+        previewUrl = await uploadBase64(previewImage, 'annalakshmi/previews');
+      } catch (cErr) {
+        console.error('Cloudinary preview upload error:', cErr.message);
+      }
     }
 
     // Save design metadata
@@ -126,7 +128,7 @@ router.post('/save-design', async (req, res) => {
       name: name || 'N/A',
       mobile: mobile || 'N/A',
       artworkUrl: artworkUrl || '',
-      previewUrl: previewPath ? `/designs/${path.basename(previewPath)}` : null,
+      previewUrl: previewUrl,
       position: position || { x: 0, y: 0 },
       size: size || { width: 0, height: 0 },
       rotation: rotation || 0,

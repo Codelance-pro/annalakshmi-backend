@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174', "https://annalakshmi-ten.vercel.app"] }));
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174', "https://annalakshmi-jute-craft.vercel.app"] }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -42,14 +42,10 @@ const saveProducts = (products) => {
   fs.writeFileSync(DATA_FILE, JSON.stringify(products, null, 2));
 };
 
-// Multer config for image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${uuidv4()}${ext}`);
-  },
-});
+const { uploadBuffer } = require('./services/cloudinary');
+
+// Multer config for image uploads (Memory Storage for direct Cloudinary upload)
+const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
@@ -91,12 +87,18 @@ app.get('/api/products/:id', (req, res) => {
 });
 
 // POST create product (admin)
-app.post('/api/products', upload.array('images', 6), (req, res) => {
+app.post('/api/products', upload.array('images', 6), async (req, res) => {
   try {
     const { name, description, category, tags, isNew, featured, isCustomizableOnly } = req.body;
     if (!name || !category) return res.status(400).json({ error: 'Name and category are required' });
 
-    const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+    let images = [];
+    if (req.files && req.files.length > 0) {
+      images = await Promise.all(
+        req.files.map(f => uploadBuffer(f.buffer, 'annalakshmi/products'))
+      );
+    }
+
     const product = {
       id: uuidv4(),
       name,
@@ -121,7 +123,7 @@ app.post('/api/products', upload.array('images', 6), (req, res) => {
 });
 
 // PUT update product (admin)
-app.put('/api/products/:id', upload.array('images', 6), (req, res) => {
+app.put('/api/products/:id', upload.array('images', 6), async (req, res) => {
   try {
     const products = getProducts();
     const idx = products.findIndex(p => p.id === req.params.id);
@@ -135,14 +137,19 @@ app.put('/api/products/:id', upload.array('images', 6), (req, res) => {
     if (removeImages) {
       const toRemove = JSON.parse(removeImages);
       toRemove.forEach(imgPath => {
-        const fullPath = path.join(__dirname, imgPath.replace('/uploads/', 'uploads/'));
-        if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+        if (imgPath.startsWith('/uploads/')) {
+          const fullPath = path.join(__dirname, imgPath.replace('/uploads/', 'uploads/'));
+          if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+        }
       });
       images = images.filter(img => !toRemove.includes(img));
     }
-    // Add new uploads
+    // Add new uploads to Cloudinary
     if (req.files && req.files.length > 0) {
-      images = [...images, ...req.files.map(f => `/uploads/${f.filename}`)];
+      const newCloudinaryUrls = await Promise.all(
+        req.files.map(f => uploadBuffer(f.buffer, 'annalakshmi/products'))
+      );
+      images = [...images, ...newCloudinaryUrls];
     }
 
     products[idx] = {
