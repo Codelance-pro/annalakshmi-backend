@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174', "https://annalakshmi-jute-craft.vercel.app", "https://annalakshmi-ten.vercel.app"] }));
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174', "https://annalakshmi-ten.vercel.app"] }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
