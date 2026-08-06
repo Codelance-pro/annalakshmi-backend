@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
@@ -7,6 +8,8 @@ const { v4: uuidv4 } = require('uuid');
 const { verifyToken } = require('../middleware/auth');
 const { appendDesignSubmission } = require('../services/sheets');
 const { uploadBuffer, uploadBase64 } = require('../services/cloudinary');
+const Product = require('../models/Product');
+const Design = require('../models/Design');
 
 // Ensure directories exist
 const uploadsDir = path.join(__dirname, '..', 'uploads');
@@ -71,7 +74,7 @@ function appendToCsv(design, userName, bagModelName) {
 
   const row = [
     clean(design.id),
-    clean(new Date(design.createdAt).toLocaleString('en-IN')),
+    clean(new Date(design.createdAt || design.timestamp).toLocaleString('en-IN')),
     clean(userName),
     clean(design.mobile),
     clean(bagModelName),
@@ -121,8 +124,8 @@ router.post('/save-design', async (req, res) => {
       }
     }
 
-    // Save design metadata
-    const design = {
+    // Save design metadata to MongoDB Atlas
+    const designData = {
       id: designId,
       bagId: bagId || null,
       name: name || 'N/A',
@@ -135,35 +138,40 @@ router.post('/save-design', async (req, res) => {
       layers: layers || [],
       bagColor: bagColor || 'natural',
       timestamp,
-      createdAt: timestamp,
     };
 
-    const metaPath = path.join(designsDir, `design_${designId}.json`);
-    fs.writeFileSync(metaPath, JSON.stringify(design, null, 2));
+    const design = await Design.create(designData);
 
-    // Resolve Bag Model Name from products.json
+    // Keep local json copy for fallback / backward compatibility
+    const metaPath = path.join(designsDir, `design_${designId}.json`);
+    fs.writeFileSync(metaPath, JSON.stringify(design.toJSON(), null, 2));
+
+    // Resolve Bag Model Name from MongoDB Product collection
     let bagModelName = bagId || 'Default Tote';
     try {
-      const DATA_FILE = path.join(__dirname, '..', 'products.json');
-      if (fs.existsSync(DATA_FILE)) {
-        const products = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-        const product = products.find(p => p.id === bagId);
+      if (bagId) {
+        const isObjectId = mongoose.Types.ObjectId.isValid(bagId);
+        const product = await Product.findOne({
+          $or: [
+            { id: bagId },
+            ...(isObjectId ? [{ _id: bagId }] : [])
+          ]
+        });
         if (product) bagModelName = product.name;
       }
     } catch (pErr) {
-      console.warn('Error reading products.json for CSV name lookup:', pErr.message);
+      console.warn('Error reading MongoDB Product for CSV name lookup:', pErr.message);
     }
 
     // Save details in Excel/CSV
     appendToCsv(design, name, bagModelName);
 
     // Fire Google Sheets logging in background — don't block the HTTP response.
-    // If Sheets fails (auth error, quota, network), the design is still saved locally.
     appendDesignSubmission(design, name, bagModelName).catch(sheetsErr => {
-      console.warn('⚠️  Google Sheets logging failed (design saved locally):', sheetsErr.message);
+      console.warn('⚠️  Google Sheets logging failed (design saved to DB):', sheetsErr.message);
     });
 
-    // Respond immediately — don't wait for Sheets
+    // Respond immediately
     res.status(201).json({ success: true, designId, design });
   } catch (err) {
     console.error('Save design error:', err);
@@ -172,13 +180,30 @@ router.post('/save-design', async (req, res) => {
 });
 
 // GET /api/design/:id
-router.get('/design/:id', (req, res) => {
-  const metaPath = path.join(designsDir, `design_${req.params.id}.json`);
-  if (!fs.existsSync(metaPath)) {
-    return res.status(404).json({ error: 'Design not found.' });
+router.get('/design/:id', async (req, res) => {
+  try {
+    const isObjectId = mongoose.Types.ObjectId.isValid(req.params.id);
+    const design = await Design.findOne({
+      $or: [
+        { id: req.params.id },
+        ...(isObjectId ? [{ _id: req.params.id }] : [])
+      ]
+    });
+    if (design) {
+      return res.json(design);
+    }
+
+    // Fallback to local JSON file if not in DB
+    const metaPath = path.join(designsDir, `design_${req.params.id}.json`);
+    if (fs.existsSync(metaPath)) {
+      const fileDesign = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+      return res.json(fileDesign);
+    }
+
+    res.status(404).json({ error: 'Design not found.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  const design = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
-  res.json(design);
 });
 
 module.exports = router;
