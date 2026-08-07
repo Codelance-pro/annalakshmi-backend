@@ -3,20 +3,10 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const { verifyToken } = require('../middleware/auth');
-const { appendDesignSubmission } = require('../services/sheets');
 const { uploadBuffer, uploadBase64 } = require('../services/cloudinary');
 const Product = require('../models/Product');
 const Design = require('../models/Design');
-
-// Ensure directories exist
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-const designsDir = path.join(__dirname, '..', 'designs');
-[uploadsDir, designsDir].forEach(dir => {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-});
 
 // Multer memory storage for artwork uploads to Cloudinary
 const artworkStorage = multer.memoryStorage();
@@ -61,39 +51,7 @@ router.post('/upload', (req, res) => {
   });
 });
 
-// CSV logging helper
-const csvPath = path.join(__dirname, '..', 'designs.csv');
 
-function appendToCsv(design, userName, bagModelName) {
-  const headers = 'Design ID,Date & Time,Customer Name,Mobile Number,Bag Model,Bag Color,Artwork URL,Preview URL\n';
-  
-  const clean = (val) => {
-    if (!val) return '';
-    return `"${String(val).replace(/"/g, '""')}"`;
-  };
-
-  const row = [
-    clean(design.id),
-    clean(new Date(design.createdAt || design.timestamp).toLocaleString('en-IN')),
-    clean(userName),
-    clean(design.mobile),
-    clean(bagModelName),
-    clean(design.bagColor),
-    clean(design.artworkUrl),
-    clean(design.previewUrl),
-  ].join(',') + '\n';
-
-  try {
-    if (!fs.existsSync(csvPath)) {
-      fs.writeFileSync(csvPath, headers + row, 'utf-8');
-    } else {
-      fs.appendFileSync(csvPath, row, 'utf-8');
-    }
-    console.log(`📊 Logged design ${design.id} to designs.csv`);
-  } catch (err) {
-    console.error('CSV append error:', err.message);
-  }
-}
 
 // POST /api/save-design  (Public)
 router.post('/save-design', async (req, res) => {
@@ -142,35 +100,6 @@ router.post('/save-design', async (req, res) => {
 
     const design = await Design.create(designData);
 
-    // Keep local json copy for fallback / backward compatibility
-    const metaPath = path.join(designsDir, `design_${designId}.json`);
-    fs.writeFileSync(metaPath, JSON.stringify(design.toJSON(), null, 2));
-
-    // Resolve Bag Model Name from MongoDB Product collection
-    let bagModelName = bagId || 'Default Tote';
-    try {
-      if (bagId) {
-        const isObjectId = mongoose.Types.ObjectId.isValid(bagId);
-        const product = await Product.findOne({
-          $or: [
-            { id: bagId },
-            ...(isObjectId ? [{ _id: bagId }] : [])
-          ]
-        });
-        if (product) bagModelName = product.name;
-      }
-    } catch (pErr) {
-      console.warn('Error reading MongoDB Product for CSV name lookup:', pErr.message);
-    }
-
-    // Save details in Excel/CSV
-    appendToCsv(design, name, bagModelName);
-
-    // Fire Google Sheets logging in background — don't block the HTTP response.
-    appendDesignSubmission(design, name, bagModelName).catch(sheetsErr => {
-      console.warn('⚠️  Google Sheets logging failed (design saved to DB):', sheetsErr.message);
-    });
-
     // Respond immediately
     res.status(201).json({ success: true, designId, design });
   } catch (err) {
@@ -193,16 +122,86 @@ router.get('/design/:id', async (req, res) => {
       return res.json(design);
     }
 
-    // Fallback to local JSON file if not in DB
-    const metaPath = path.join(designsDir, `design_${req.params.id}.json`);
-    if (fs.existsSync(metaPath)) {
-      const fileDesign = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
-      return res.json(fileDesign);
-    }
+
 
     res.status(404).json({ error: 'Design not found.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/designs  (Admin – list all saved designs)
+router.get('/designs', async (req, res) => {
+  try {
+    const designs = await Design.find({}).sort({ createdAt: -1 });
+    res.json(designs);
+  } catch (err) {
+    console.error('List designs error:', err);
+    res.status(500).json({ error: 'Failed to fetch designs.' });
+  }
+});
+
+// GET /api/designs/export  (Admin – download designs as Excel)
+router.get('/designs/export', async (req, res) => {
+  try {
+    const ExcelJS = require('exceljs');
+    const designs = await Design.find({}).sort({ createdAt: -1 });
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Annalakshmi Admin';
+    workbook.created = new Date();
+
+    const sheet = workbook.addWorksheet('Saved Designs');
+
+    // Header styling
+    sheet.columns = [
+      { header: 'S.No', key: 'sno', width: 8 },
+      { header: 'Customer Name', key: 'name', width: 25 },
+      { header: 'Mobile Number', key: 'mobile', width: 18 },
+      { header: 'Bag ID', key: 'bagId', width: 20 },
+      { header: 'Bag Color', key: 'bagColor', width: 15 },
+      { header: 'Preview URL', key: 'previewUrl', width: 45 },
+      { header: 'Design ID', key: 'designId', width: 38 },
+      { header: 'Created Date', key: 'createdAt', width: 22 },
+    ];
+
+    // Style header row
+    sheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2C3E50' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+
+    // Add data rows
+    designs.forEach((d, i) => {
+      sheet.addRow({
+        sno: i + 1,
+        name: d.name || 'N/A',
+        mobile: d.mobile || 'N/A',
+        bagId: d.bagId || 'N/A',
+        bagColor: d.bagColor || 'N/A',
+        previewUrl: d.previewUrl || '',
+        designId: d.id,
+        createdAt: d.createdAt
+          ? new Date(d.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+          : '',
+      });
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=designs_${Date.now()}.xlsx`
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error('Export designs error:', err);
+    res.status(500).json({ error: 'Failed to export designs.' });
   }
 });
 
